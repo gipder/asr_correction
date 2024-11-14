@@ -33,7 +33,7 @@ tokenizer = AutoTokenizer.from_pretrained(model_name)
 tokenizer.pad_token = tokenizer.eos_token
 
 model = LlamaForCausalLM.from_pretrained(model_name,
-                                         torch_dtype=torch.float32,
+                                         torch_dtype=torch.bfloat16,
                                          device_map="auto")
 
 model.config.pad_token_id = model.config.eos_token_id
@@ -86,6 +86,8 @@ def collate_fn(batch, max_length=256):
     max_label_length = max(len(item["labels"]) for item in batch)
     if max_input_length > max_length:
         max_input_length = max_length
+    if max_label_length > max_length:
+        max_label_length = max_length
 
     # padding with tensor in torch
     input_ids_type = batch[0]["input_ids"].dtype
